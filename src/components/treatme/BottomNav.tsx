@@ -1,56 +1,58 @@
 import { Link } from "@tanstack/react-router";
-import { Home, Search, Sparkles, ListChecks, User } from "lucide-react";
+import { Home, ScanFace, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Tab = {
-  to: "/" | "/search" | "/scan" | "/treatments" | "/profile";
+  to: "/" | "/scan" | "/profile";
   label: string;
   icon: typeof Home;
   primary?: boolean;
 };
 
 const tabs: Tab[] = [
-  { to: "/", label: "menu", icon: Home },
-  { to: "/search", label: "search", icon: Search },
-  { to: "/scan", label: "scan", icon: Sparkles, primary: true },
-  { to: "/treatments", label: "treatments", icon: ListChecks },
-  { to: "/profile", label: "profile", icon: User },
+  { to: "/", label: "home", icon: Home },
+  { to: "/scan", label: "scan", icon: ScanFace, primary: true },
+  { to: "/profile", label: "my skin", icon: User },
 ];
 
 export function BottomNav() {
   return (
-    <nav aria-label="main" className="fixed bottom-0 inset-x-0 z-30 bg-white/95 backdrop-blur border-t border-line/70 pb-[env(safe-area-inset-bottom)]">
-      <ul className="grid grid-cols-5 px-2 pt-2 pb-2">
+    <nav
+      aria-label="main"
+      className="fixed inset-x-0 bottom-0 z-30 border-t border-line/70 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur"
+    >
+      <ul className="mx-auto grid max-w-[430px] grid-cols-3 px-8 pb-2 pt-2">
         {tabs.map((tab) => (
           <li key={tab.to} className="flex justify-center">
             <Link
               to={tab.to}
               aria-label={tab.label}
-              className="group flex flex-col items-center gap-1 px-3 py-1 rounded-xl min-h-11"
-              activeOptions={{ exact: tab.to === "/" }}
+              className="group flex min-h-11 flex-col items-center gap-1 rounded-xl px-5 py-1"
+              activeOptions={{ exact: tab.to === "/" || tab.to === "/scan" }}
             >
               {({ isActive }) => (
                 <>
                   <span
                     className={cn(
                       "grid place-items-center transition-colors",
-                      tab.primary
-                        ? "size-11 rounded-full -mt-4 shadow-md"
-                        : "size-7",
+                      tab.primary ? "-mt-4 size-12 rounded-full shadow-md" : "size-7",
                       tab.primary
                         ? isActive
                           ? "bg-hot text-white"
                           : "bg-ink text-cream"
                         : isActive
-                          ? "text-ink"
+                          ? "text-hot"
                           : "text-ink-mute group-hover:text-ink-soft",
                     )}
                   >
-                    <tab.icon className={tab.primary ? "size-5" : "size-[18px]"} strokeWidth={2.2} />
+                    <tab.icon
+                      className={tab.primary ? "size-5" : "size-[18px]"}
+                      strokeWidth={2.2}
+                    />
                   </span>
                   <span
                     className={cn(
-                      "text-[10px] font-semibold tracking-[0.06em] lowercase whitespace-nowrap",
+                      "whitespace-nowrap text-[10px] font-semibold lowercase tracking-[0.04em]",
                       isActive ? "text-ink" : "text-ink-mute",
                     )}
                   >
