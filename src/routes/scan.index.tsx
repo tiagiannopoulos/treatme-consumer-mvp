@@ -11,10 +11,18 @@ import { useAuth } from "@/lib/auth";
 export const Route = createFileRoute("/scan/")({
   head: () => ({
     meta: [
-      { title: "free ai skin & face analysis — 16 concerns scored | treatme" },
-      { name: "description", content: "upload one photo and get 16 skin concerns scored out of 100, plus the treatments that change them and where to book in toronto. free, no card needed." },
-      { property: "og:title", content: "free ai skin & face analysis — 16 concerns scored | treatme" },
-      { property: "og:description", content: "upload one photo and get 16 skin concerns scored out of 100, plus the treatments that change them and where to book in toronto. free, no card needed." },
+      { title: "scan my skin | treatme" },
+      {
+        name: "description",
+        content:
+          "take one selfie for a cosmetic skin snapshot, top priorities, and educational options to explore.",
+      },
+      { property: "og:title", content: "scan my skin | treatme" },
+      {
+        property: "og:description",
+        content:
+          "take one selfie for a cosmetic skin snapshot, top priorities, and educational options to explore.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -49,12 +57,18 @@ function ConsentPage() {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/45 px-5">
       <div className="w-full max-w-[360px] rounded-[26px] bg-white p-6 shadow-xl">
         <h1 className="brand-display text-[26px] lowercase leading-tight">
-          before we scan<span className="text-hot">.</span>
+          before your scan<span className="text-hot">.</span>
         </h1>
 
         <p className="mt-3 text-[13.5px] leading-relaxed lowercase text-ink-mute">
-          treatme analyzes a photo of your face to estimate skin concerns. that photo and the map we
-          build from it are biometric information. you can delete them any time from your profile.
+          treatme is for cosmetic and educational use only. results are not intended to diagnose,
+          treat, or cure any medical condition. always consult a licensed professional before
+          undergoing a medical or cosmetic procedure.
+        </p>
+
+        <p className="mt-3 text-[12.5px] leading-relaxed lowercase text-ink-mute">
+          we analyze a photo of your face to estimate visible skin concerns. your photo and the map
+          built from it are biometric information, and you can delete saved scans from your profile.
         </p>
 
         <button
@@ -72,7 +86,8 @@ function ConsentPage() {
             {consented && <Check className="size-[13px]" strokeWidth={3} />}
           </span>
           <span className="text-[13.5px] leading-snug lowercase">
-            i consent to treatme processing a photo of my face to produce a skin analysis.
+            i accept the disclaimer and consent to treatme processing my photo to create a cosmetic
+            skin snapshot.
           </span>
         </button>
 
@@ -116,7 +131,7 @@ function ConsentPage() {
 
         <div className="mt-6 flex gap-3">
           <PillButton variant="outline" className="flex-1" onClick={() => navigate({ to: "/" })}>
-            reject
+            no
           </PillButton>
           <PillButton className="flex-1" disabled={!consented || busy} onClick={onAccept}>
             accept

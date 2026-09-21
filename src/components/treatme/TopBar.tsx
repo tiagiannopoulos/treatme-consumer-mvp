@@ -1,14 +1,13 @@
 import { Link, useRouterState } from "@tanstack/react-router";
+import { User } from "lucide-react";
 
 function titleFor(pathname: string) {
-  if (pathname.startsWith("/search")) return "search";
-  if (pathname.startsWith("/treatments") || pathname.startsWith("/treatment/")) return "treatments";
+  if (pathname.startsWith("/progress")) return "progress";
   if (pathname.startsWith("/profile")) return "profile";
-  if (pathname.startsWith("/scan/results")) return "analysis results";
-  if (pathname.startsWith("/scan")) return "scan";
-  if (pathname.startsWith("/storefront") || pathname.startsWith("/medspas")) return "clinic";
+  if (pathname.startsWith("/scan/chat")) return "ask";
+  if (pathname.startsWith("/scan")) return "skin scan";
 
-  return "menu";
+  return "home";
 }
 
 export function TopBar() {
@@ -19,17 +18,27 @@ export function TopBar() {
   const title = titleFor(pathname);
 
   return (
-    <header className="bg-white">
+    <header className="sticky top-0 z-20 border-b border-line/50 bg-white/90 backdrop-blur">
       <div className="flex items-center justify-between px-6 h-14">
-        <Link to="/" className="brand-display text-[26px] tracking-[-0.05em] leading-none lowercase">
-          {title}
-        </Link>
+        <div className="flex items-baseline gap-3">
+          <Link
+            to="/"
+            className="brand-display text-[25px] tracking-[-0.05em] leading-none lowercase"
+          >
+            treatme<span className="text-hot">.</span>
+          </Link>
+          {title !== "home" && (
+            <span className="text-[11px] font-bold lowercase tracking-[0.08em] text-ink-mute">
+              {title}
+            </span>
+          )}
+        </div>
         <Link
           to="/profile"
-          className="size-9 rounded-full bg-ink text-cream grid place-items-center font-bold text-[13px] tracking-tight"
+          className="size-9 rounded-full bg-ink text-cream grid place-items-center"
           aria-label="profile"
         >
-          tx
+          <User className="size-4" strokeWidth={2.2} />
         </Link>
       </div>
     </header>

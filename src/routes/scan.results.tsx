@@ -1,11 +1,11 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronRight, Check } from "lucide-react";
+import { Check, ChevronRight, Download, MessageCircle } from "lucide-react";
 import { useScan } from "@/lib/scan-store";
-import { toConcernRows, overallScore, SCAN_CONCERN_LABEL, SCAN_CONCERN_KEYS } from "@/lib/scan-concerns";
+import { toConcernRows, SCAN_CONCERN_LABEL, SCAN_CONCERN_KEYS } from "@/lib/scan-concerns";
 import { LOW_QUALITY_NOTE } from "@/lib/photo-check";
-import { treatmentsForConcerns, bestTreatmentByImproves } from "@/lib/concern-treatments";
+import { treatmentsForConcerns } from "@/lib/concern-treatments";
 import { useScanPhotoSource } from "@/lib/scan-photo";
 import { ScanPhoto } from "@/components/treatme/ScanPhoto";
 import { AnalysisFooter } from "@/components/treatme/AnalysisFooter";
@@ -19,16 +19,23 @@ import { MarkerOverlay } from "@/components/treatme/MarkerOverlay";
 import { markerDrawing } from "@/lib/marker-shapes";
 import { findIndicator, skinIndicatorsQuery } from "@/lib/skin-indicators";
 
-
 export const Route = createFileRoute("/scan/results")({
   validateSearch: (search: Record<string, unknown>): { id?: string } =>
     typeof search.id === "string" ? { id: search.id } : {},
   head: () => ({
     meta: [
-      { title: "analysis results · treatme" },
-      { name: "description", content: "your skin, read honestly. see every concern on your own face." },
-      { property: "og:title", content: "analysis results · treatme" },
-      { property: "og:description", content: "your skin, read honestly. see every concern on your own face." },
+      { title: "your skin snapshot · treatme" },
+      {
+        name: "description",
+        content:
+          "understand what your cosmetic skin scan noticed and explore what may be worth asking about.",
+      },
+      { property: "og:title", content: "your skin snapshot · treatme" },
+      {
+        property: "og:description",
+        content:
+          "understand what your cosmetic skin scan noticed and explore what may be worth asking about.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -36,10 +43,74 @@ export const Route = createFileRoute("/scan/results")({
   component: ResultsPage,
 });
 
+const FINDING_COPY: Record<string, string> = {
+  pores: "pore visibility stood out here",
+  breakouts: "visible blemish activity stood out",
+  texture: "surface texture looked less even",
+  oiliness: "shine and congestion stood out",
+  redness: "visible redness stood out",
+  pigmentation: "uneven pigment stood out",
+  uniformness: "tone looked less even",
+  radiance: "skin looked a little less luminous",
+  lines: "visible lines stood out",
+  firmness: "visible firmness may be worth watching",
+  volume_loss: "facial volume patterns stood out",
+  hydration: "skin looked less hydrated",
+  dark_circles: "under-eye darkness stood out",
+  under_eye_puffiness: "under-eye puffiness stood out",
+  tear_trough: "under-eye hollowing stood out",
+  eyelid_heaviness: "the upper-eye area stood out",
+  symmetry: "small differences between sides stood out",
+  fine_lines: "fine lines stood out",
+};
+
+const INGREDIENTS: Record<string, string[]> = {
+  pores: ["niacinamide", "salicylic acid", "retinoid"],
+  breakouts: ["salicylic acid", "benzoyl peroxide", "adapalene"],
+  texture: ["retinoid", "lactic acid", "ceramides"],
+  oiliness: ["niacinamide", "salicylic acid", "lightweight moisturizer"],
+  redness: ["azelaic acid", "centella", "ceramides"],
+  pigmentation: ["vitamin c", "azelaic acid", "daily spf"],
+  uniformness: ["vitamin c", "niacinamide", "daily spf"],
+  radiance: ["vitamin c", "lactic acid", "daily spf"],
+  lines: ["retinoid", "peptides", "daily spf"],
+  firmness: ["retinoid", "peptides", "daily spf"],
+  volume_loss: ["peptides", "hyaluronic acid", "daily spf"],
+  hydration: ["hyaluronic acid", "glycerin", "ceramides"],
+  dark_circles: ["caffeine", "vitamin c", "daily spf"],
+  under_eye_puffiness: ["caffeine", "peptides", "cool compress"],
+  tear_trough: ["hyaluronic acid", "peptides", "daily spf"],
+  eyelid_heaviness: ["peptides", "caffeine", "daily spf"],
+  symmetry: ["daily spf", "barrier moisturizer"],
+  fine_lines: ["retinoid", "peptides", "daily spf"],
+};
+
+function findingCopy(key: string) {
+  return FINDING_COPY[key] ?? "this area stood out in your photo";
+}
+
+function ingredientsFor(key: string) {
+  return INGREDIENTS[key] ?? ["gentle cleanser", "barrier moisturizer", "daily spf"];
+}
+
+function priorityLabel(score: number) {
+  if (score >= 90) return "minimal";
+  if (score >= 80) return "low visibility";
+  if (score >= 50) return "some visibility";
+  return "more visible";
+}
+
+function experienceLabel(slug: string, family: string | null) {
+  const value = `${slug} ${family ?? ""}`.toLowerCase();
+  if (/botox|filler|inject|biostim|prp|microneedl|mesotherapy/.test(value)) return "needle-based";
+  return "no needles";
+}
+
 function ResultsPage() {
   const navigate = useNavigate();
   const { id: requestedId } = Route.useSearch();
-  const { result, analysis, scanId, photoQuality, measured, landmarks, hydrate, setResult } = useScan();
+  const { result, analysis, scanId, photoQuality, measured, landmarks, hydrate, setResult } =
+    useScan();
   const photoSource = useScanPhotoSource();
   const [shareOpen, setShareOpen] = useState(false);
   const [loading, setLoading] = useState(Boolean(requestedId && requestedId !== scanId));
@@ -84,12 +155,7 @@ function ResultsPage() {
   const rows = useMemo(() => (result ? toConcernRows(result, measured) : []), [result, measured]);
   // symmetry is persisted but is not one of the four groups, so it stays out
   // of the headline ordering and the treatment matching.
-  const ordered = useMemo(
-    () =>
-      [...rows].sort((a, b) => a.score - b.score),
-    [rows],
-  );
-  const overall = useMemo(() => (rows.length ? overallScore(rows) : 0), [rows]);
+  const ordered = useMemo(() => [...rows].sort((a, b) => a.score - b.score), [rows]);
   const { data: indicators = [] } = useQuery(skinIndicatorsQuery());
 
   // the four groups only: symmetry and fine lines render, but do not drive matching
@@ -98,19 +164,13 @@ function ResultsPage() {
     [ordered],
   );
   const worst = grid[0];
+  const priorities = grid.slice(0, 3);
+  const strongest = grid[grid.length - 1];
 
   const { data: matches = [] } = useQuery({
     queryKey: ["concern-treatments", grid.map((r) => `${r.concern_key}:${r.score}`).join(",")],
     queryFn: () => treatmentsForConcerns(grid, 5),
     enabled: grid.length > 0,
-    staleTime: 5 * 60 * 1000,
-  });
-
-  // best treatment for the top concern, matched against the improves array.
-  const { data: topSlug } = useQuery({
-    queryKey: ["best-treatment-improves", worst?.concern_key],
-    queryFn: () => bestTreatmentByImproves(SCAN_CONCERN_LABEL[worst!.concern_key] ?? worst!.concern_key),
-    enabled: !!worst,
     staleTime: 5 * 60 * 1000,
   });
 
@@ -132,35 +192,32 @@ function ResultsPage() {
     );
   }
 
-
-  const openTopConcern = () => {
-    if (!worst) return;
-    const label = SCAN_CONCERN_LABEL[worst.concern_key] ?? worst.concern_key;
-    if (topSlug) {
-      navigate({ to: "/match/$slug", params: { slug: topSlug } });
-    } else {
-      navigate({ to: "/search", search: { q: label, scope: undefined, treatment: undefined } });
-    }
-  };
-
   return (
     <div className="pb-[calc(3.5rem+env(safe-area-inset-bottom))]">
-      {/* header */}
-      <header
-        className="px-6 flex items-center justify-between gap-3"
-        style={{ paddingTop: "calc(env(safe-area-inset-top) + 0.75rem)" }}
-      >
-        <h1 className="brand-display text-[26px] lowercase">analysis results</h1>
+      <header className="px-6" style={{ paddingTop: "calc(env(safe-area-inset-top) + 0.75rem)" }}>
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="brand-eyebrow">your results</p>
+            <h1 className="brand-display mt-2 text-[32px] lowercase">your skin snapshot.</h1>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShareOpen(true)}
+            className="grid size-10 shrink-0 place-items-center rounded-full border border-ink/15"
+            aria-label="download snapshot"
+          >
+            <Download className="size-4" />
+          </button>
+        </div>
+        <p className="mt-3 max-w-[360px] text-[13px] leading-relaxed text-ink-mute">
+          Here is what stood out in this photo, in plain English. Start with the priorities—not
+          every visible detail needs action.
+        </p>
         {photoQuality === "poor" && (
-          <p className="mt-1 text-[13px] lowercase text-ink/55">{LOW_QUALITY_NOTE}</p>
+          <p className="mt-2 rounded-xl bg-butter px-3 py-2 text-[12px] lowercase text-ink/65">
+            {LOW_QUALITY_NOTE}
+          </p>
         )}
-        <button
-          type="button"
-          onClick={() => navigate({ to: "/scan/capture" })}
-          className="shrink-0 rounded-full border border-ink/25 px-4 h-9 text-[13px] font-semibold lowercase"
-        >
-          retake
-        </button>
       </header>
 
       {/* the photo lives here and only here */}
@@ -168,52 +225,102 @@ function ResultsPage() {
         <ScanPhoto source={photoSource} className="relative aspect-[4/5]" />
       </div>
 
-
-      {/* stat cards */}
-      <div className="mt-4 px-6 grid grid-cols-2 gap-3">
-        <div className="rounded-2xl border border-ink/10 bg-white p-4">
-          <p className="text-[12px] lowercase text-ink">skin type</p>
-          <p className="font-bold text-[19px] mt-2 lowercase leading-tight">
-            {analysis?.skinType ?? "unknown"}
-          </p>
-        </div>
-        <div className="rounded-2xl border border-ink/10 bg-white p-4">
-          <p className="text-[12px] lowercase text-ink">skin tone</p>
-          <p className="font-bold text-[19px] mt-2 lowercase leading-tight">
-            {analysis ? `fitzpatrick ${analysis.fitzpatrick.toLowerCase()}` : "unknown"}
-          </p>
-        </div>
-        <div className="rounded-2xl border border-ink/10 bg-white p-4">
-          <p className="text-[12px] lowercase text-ink">overall score</p>
-          <p className="brand-display text-[34px] leading-none mt-2">
-            {overall}
-            <span className="text-[15px] text-ink-mute">/100</span>
-          </p>
-        </div>
+      <div className="mt-4 grid grid-cols-2 gap-3 px-6">
         {worst && (
-          <button
-            type="button"
-            onClick={openTopConcern}
-            className="text-left rounded-2xl p-4"
-            style={{ backgroundColor: "#FFEDB4" }}
-          >
-            <p className="text-[12px] lowercase text-ink">top concern</p>
-            <p className="font-bold text-[18px] mt-2 lowercase leading-tight">
+          <div className="rounded-[22px] bg-bubblegum/50 p-4">
+            <p className="text-[11px] font-bold lowercase text-ink-mute">priority #1</p>
+            <p className="mt-2 text-[19px] font-bold lowercase leading-tight">
               {SCAN_CONCERN_LABEL[worst.concern_key]}
             </p>
-            <p className="text-[13px] text-ink/70 mt-1">{worst.score}/100</p>
-          </button>
+            <p className="mt-2 text-[11.5px] leading-relaxed text-ink-soft">
+              {findingCopy(worst.concern_key)}
+            </p>
+          </div>
+        )}
+        {strongest && (
+          <div className="rounded-[22px] bg-mint p-4">
+            <p className="text-[11px] font-bold lowercase text-ink-mute">strongest area</p>
+            <p className="mt-2 text-[19px] font-bold lowercase leading-tight">
+              {SCAN_CONCERN_LABEL[strongest.concern_key]}
+            </p>
+            <p className="mt-2 text-[11.5px] leading-relaxed text-ink-soft">
+              This appeared to need less attention in this photo.
+            </p>
+          </div>
         )}
       </div>
 
+      <section className="mt-8 px-6">
+        <p className="brand-eyebrow">what to focus on</p>
+        <h2 className="brand-display mt-2 text-[26px] lowercase">your top 3 priorities.</h2>
+        <div className="mt-4 space-y-2">
+          {priorities.map((row, index) => {
+            const ind = findIndicator(indicators, row.concern_key);
+            return (
+              <button
+                key={row.concern_key}
+                type="button"
+                onClick={() =>
+                  navigate({
+                    to: "/scan/concern/$key",
+                    params: { key: ind?.slug ?? row.concern_key },
+                  })
+                }
+                className="flex w-full items-center gap-3 rounded-[20px] border border-ink/10 bg-white p-4 text-left"
+              >
+                <span className="grid size-9 shrink-0 place-items-center rounded-full bg-butter text-[13px] font-bold">
+                  {index + 1}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-[15px] font-bold lowercase">
+                    {ind?.name ?? SCAN_CONCERN_LABEL[row.concern_key]}
+                  </span>
+                  <span className="mt-0.5 block text-[12px] lowercase text-ink-mute">
+                    {priorityLabel(row.score)} · {findingCopy(row.concern_key)}
+                  </span>
+                </span>
+                <ChevronRight className="size-4 shrink-0 text-ink-mute" />
+              </button>
+            );
+          })}
+        </div>
+      </section>
 
-
-
+      <section className="mt-8 px-6">
+        <p className="brand-eyebrow">at-home options</p>
+        <h2 className="brand-display mt-2 text-[24px] lowercase">ingredients to explore.</h2>
+        <p className="mt-2 text-[12.5px] leading-relaxed text-ink-mute">
+          Start slowly and patch test. A professional can help you choose what fits your skin and
+          current routine.
+        </p>
+        <div className="mt-4 space-y-3">
+          {priorities.map((row) => (
+            <div key={row.concern_key} className="rounded-[20px] bg-[#fff8fb] p-4">
+              <p className="text-[13px] font-bold lowercase">
+                for {SCAN_CONCERN_LABEL[row.concern_key]}
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {ingredientsFor(row.concern_key).map((ingredient) => (
+                  <span
+                    key={ingredient}
+                    className="rounded-full border border-ink/10 bg-white px-3 py-1.5 text-[11.5px] font-semibold lowercase"
+                  >
+                    {ingredient}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
       {/* the detail */}
       <div className="mt-8">
         <div className="px-6">
-          <h2 className="brand-display text-[24px] lowercase">the detail</h2>
-          <p className="text-[13px] text-ink/55 mt-1 lowercase">indicator by indicator, lowest first</p>
+          <p className="brand-eyebrow">your full snapshot</p>
+          <h2 className="brand-display text-[24px] mt-2 lowercase">area by area.</h2>
+          <p className="text-[13px] text-ink/55 mt-1 lowercase">
+            tap any area for a plain-English breakdown
+          </p>
         </div>
         <div className="mt-4 overflow-x-auto scrollbar-none">
           <div className="flex gap-3 px-6 pb-2">
@@ -233,7 +340,12 @@ function ResultsPage() {
                 <button
                   key={row.concern_key}
                   type="button"
-                  onClick={() => navigate({ to: "/scan/concern/$key", params: { key: ind?.slug ?? row.concern_key } })}
+                  onClick={() =>
+                    navigate({
+                      to: "/scan/concern/$key",
+                      params: { key: ind?.slug ?? row.concern_key },
+                    })
+                  }
                   className="text-left shrink-0 w-[112px]"
                 >
                   {photoSource.url ? (
@@ -264,7 +376,7 @@ function ResultsPage() {
                   <p className="mt-2 text-[13px] font-semibold lowercase leading-tight">
                     {ind?.name ?? SCAN_CONCERN_LABEL[row.concern_key]}
                   </p>
-                  <p className="text-[12px] text-ink/55">{row.score}/100</p>
+                  <p className="text-[12px] text-ink/55">{priorityLabel(row.score)}</p>
                 </button>
               );
             })}
@@ -272,34 +384,56 @@ function ResultsPage() {
         </div>
       </div>
 
-      {/* recommended for you */}
+      {/* professional options */}
       <div className="mt-8 px-6">
-        <p className="brand-eyebrow">matched to your scores</p>
-        <h2 className="brand-display text-[24px] mt-2 lowercase">recommended for you</h2>
+        <p className="brand-eyebrow">professional options</p>
+        <h2 className="brand-display text-[24px] mt-2 lowercase">scan suggestions.</h2>
+        <p className="mt-2 text-[12.5px] leading-relaxed text-ink-mute">
+          Educational options matched to what stood out—not a prescription or treatment plan.
+        </p>
 
         <div className="mt-4 rounded-3xl border border-ink/10 bg-white divide-y divide-ink/10 overflow-hidden">
           {matches.length === 0 ? (
             <p className="p-5 text-[14px] text-ink-mute">
-              we're lining up matches for your scores. check back in a moment.
+              we're lining up options for your snapshot. check back in a moment.
             </p>
           ) : (
             matches.map((m) => (
               <div key={m.slug} className="flex items-center gap-2 pr-3">
                 <button
                   type="button"
-                  onClick={() => navigate({ to: "/match/$slug", params: { slug: m.slug } })}
+                  onClick={() => navigate({ to: "/treatment/$slug", params: { slug: m.slug } })}
                   className="min-w-0 flex-1 text-left px-4 py-4 flex items-center gap-3"
                 >
                   <div className="min-w-0 flex-1">
                     <p className="font-bold text-[16px] lowercase leading-tight">{m.name}</p>
-                    <p className="text-[12px] text-ink-mute mt-0.5 lowercase">for {m.concernLabel}</p>
+                    <p className="text-[12px] text-ink-mute mt-1 lowercase">
+                      explore for {m.concernLabel}
+                    </p>
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      <span className="rounded-full bg-mint px-2 py-1 text-[10px] font-semibold lowercase">
+                        {experienceLabel(m.slug, m.family)}
+                      </span>
+                      {m.downtime && (
+                        <span className="rounded-full bg-butter px-2 py-1 text-[10px] font-semibold lowercase">
+                          downtime: {m.downtime}
+                        </span>
+                      )}
+                    </div>
                   </div>
                   {m.priceFrom !== null && (
-                    <p className="text-[13px] font-semibold shrink-0">from ${Math.round(m.priceFrom)}</p>
+                    <p className="text-[13px] font-semibold shrink-0">
+                      from ${Math.round(m.priceFrom)}
+                    </p>
                   )}
                   <ChevronRight className="size-5 text-ink-mute shrink-0" />
                 </button>
-                <SaveTreatmentButton slug={m.slug} name={m.name} size={18} className="size-9 shrink-0" />
+                <SaveTreatmentButton
+                  slug={m.slug}
+                  name={m.name}
+                  size={18}
+                  className="size-9 shrink-0"
+                />
               </div>
             ))
           )}
@@ -326,7 +460,7 @@ function ResultsPage() {
         </button>
       </div>
 
-      {/* sticky consult bar */}
+      {/* sticky ask bar */}
       <div
         className="fixed inset-x-0 z-30 px-6 pt-4 pb-3 bg-gradient-to-t from-cream via-cream to-transparent"
         style={{ bottom: "calc(5rem + env(safe-area-inset-bottom))" }}
@@ -337,11 +471,19 @@ function ResultsPage() {
           className="w-full h-12 rounded-full text-[15px] font-semibold lowercase text-cream"
           style={{ backgroundColor: "#FF1F87" }}
         >
-          start my consult
+          <span className="inline-flex items-center justify-center gap-2">
+            <MessageCircle className="size-4" />
+            ask treatme about my results
+          </span>
         </button>
       </div>
 
-      <SharePdfSheet open={shareOpen} onOpenChange={setShareOpen} scanId={scanId} analysis={analysis} />
+      <SharePdfSheet
+        open={shareOpen}
+        onOpenChange={setShareOpen}
+        scanId={scanId}
+        analysis={analysis}
+      />
     </div>
   );
 }
@@ -350,7 +492,10 @@ function ResultsPage() {
 function ResultsSkeleton() {
   return (
     <div className="pb-24" aria-hidden="true">
-      <div className="px-6 flex items-center justify-between gap-3" style={{ paddingTop: "calc(env(safe-area-inset-top) + 0.75rem)" }}>
+      <div
+        className="px-6 flex items-center justify-between gap-3"
+        style={{ paddingTop: "calc(env(safe-area-inset-top) + 0.75rem)" }}
+      >
         <div className="h-7 w-48 rounded-full bg-ink/10 animate-pulse" />
         <div className="h-9 w-20 rounded-full bg-ink/10 animate-pulse" />
       </div>
