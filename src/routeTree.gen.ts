@@ -9,82 +9,51 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as PrivacyRouteImport } from './routes/privacy'
-import { Route as ProfileRouteImport } from './routes/profile'
-import { Route as ProgressRouteImport } from './routes/progress'
-import { Route as ResetPasswordRouteImport } from './routes/reset-password'
-import { Route as SavedRouteImport } from './routes/saved'
-import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
-import { Route as SkinAnalysisRouteImport } from './routes/skin-analysis'
 import { Route as TermsRouteImport } from './routes/terms'
-import { Route as ApiChatRouteImport } from './routes/api/chat'
-import { Route as ApiConsultChatRouteImport } from './routes/api/consult-chat'
-import { Route as BookConsultRouteImport } from './routes/book.consult'
-import { Route as ClaimIdRouteImport } from './routes/claim.$id'
-import { Route as DevCrawlRouteImport } from './routes/dev.crawl'
-import { Route as DevFacemapsRouteImport } from './routes/dev.facemaps'
-import { Route as DevRecommendationsRouteImport } from './routes/dev.recommendations'
-import { Route as DevTreatmentImagesRouteImport } from './routes/dev.treatment-images'
-import { Route as LearnSlugRouteImport } from './routes/learn.$slug'
-import { Route as LegalPrivacyRouteImport } from './routes/legal.privacy'
-import { Route as LegalTermsRouteImport } from './routes/legal.terms'
-import { Route as MatchSlugRouteImport } from './routes/match.$slug'
-import { Route as MedspasSlugRouteImport } from './routes/medspas.$slug'
-import { Route as ProviderIdRouteImport } from './routes/provider.$id'
-import { Route as ProvidersSlugRouteImport } from './routes/providers.$slug'
-import { Route as ScanIndexRouteImport } from './routes/scan.index'
-import { Route as ScanAnalyzingRouteImport } from './routes/scan.analyzing'
-import { Route as ScanCaptureRouteImport } from './routes/scan.capture'
-import { Route as ScanChatRouteImport } from './routes/scan.chat'
-import { Route as ScanResultsRouteImport } from './routes/scan.results'
-import { Route as SearchIndexRouteImport } from './routes/search.index'
-import { Route as SearchMapRouteImport } from './routes/search.map'
-import { Route as StorefrontIdRouteImport } from './routes/storefront.$id'
+import { Route as SkinAnalysisRouteImport } from './routes/skin-analysis'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as SavedRouteImport } from './routes/saved'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as TreatmentsIndexRouteImport } from './routes/treatments.index'
-import { Route as ApiPublicAnalyzeRouteImport } from './routes/api/public/analyze'
-import { Route as ApiPublicHealthRouteImport } from './routes/api/public/health'
-import { Route as ReportScanIdPreviewRouteImport } from './routes/report.$scanId.preview'
-import { Route as ScanConcernKeyRouteImport } from './routes/scan.concern.$key'
-import { Route as StorefrontIdRequestRouteImport } from './routes/storefront_.$id.request'
-import { Route as TreatmentSlugIndexRouteImport } from './routes/treatment.$slug.index'
-import { Route as TreatmentSlugReviewsRouteImport } from './routes/treatment.$slug.reviews'
-import { Route as TreatmentSlugStoryRouteImport } from './routes/treatment.$slug.story'
+import { Route as SearchIndexRouteImport } from './routes/search.index'
+import { Route as ScanIndexRouteImport } from './routes/scan.index'
+import { Route as StorefrontIdRouteImport } from './routes/storefront.$id'
+import { Route as SearchMapRouteImport } from './routes/search.map'
+import { Route as ScanResultsRouteImport } from './routes/scan.results'
+import { Route as ScanChatRouteImport } from './routes/scan.chat'
+import { Route as ScanCaptureRouteImport } from './routes/scan.capture'
+import { Route as ScanAnalyzingRouteImport } from './routes/scan.analyzing'
+import { Route as ProvidersSlugRouteImport } from './routes/providers.$slug'
+import { Route as ProviderIdRouteImport } from './routes/provider.$id'
+import { Route as MedspasSlugRouteImport } from './routes/medspas.$slug'
+import { Route as MatchSlugRouteImport } from './routes/match.$slug'
+import { Route as LegalTermsRouteImport } from './routes/legal.terms'
+import { Route as LegalPrivacyRouteImport } from './routes/legal.privacy'
+import { Route as LearnSlugRouteImport } from './routes/learn.$slug'
+import { Route as DevTreatmentImagesRouteImport } from './routes/dev.treatment-images'
+import { Route as DevRecommendationsRouteImport } from './routes/dev.recommendations'
+import { Route as DevFacemapsRouteImport } from './routes/dev.facemaps'
+import { Route as DevCrawlRouteImport } from './routes/dev.crawl'
+import { Route as ClaimIdRouteImport } from './routes/claim.$id'
+import { Route as BookConsultRouteImport } from './routes/book.consult'
+import { Route as ApiConsultChatRouteImport } from './routes/api/consult-chat'
+import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as TreatmentsSlugIndexRouteImport } from './routes/treatments.$slug.index'
+import { Route as TreatmentSlugIndexRouteImport } from './routes/treatment.$slug.index'
+import { Route as TreatmentSlugStoryRouteImport } from './routes/treatment.$slug.story'
+import { Route as TreatmentSlugReviewsRouteImport } from './routes/treatment.$slug.reviews'
+import { Route as StorefrontIdRequestRouteImport } from './routes/storefront_.$id.request'
+import { Route as ScanConcernKeyRouteImport } from './routes/scan.concern.$key'
+import { Route as ReportScanIdPreviewRouteImport } from './routes/report.$scanId.preview'
+import { Route as ApiPublicHealthRouteImport } from './routes/api/public/health'
+import { Route as ApiPublicAnalyzeRouteImport } from './routes/api/public/analyze'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrivacyRoute = PrivacyRouteImport.update({
-  id: '/privacy',
-  path: '/privacy',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProfileRoute = ProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProgressRoute = ProgressRouteImport.update({
-  id: '/progress',
-  path: '/progress',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ResetPasswordRoute = ResetPasswordRouteImport.update({
-  id: '/reset-password',
-  path: '/reset-password',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SavedRoute = SavedRouteImport.update({
-  id: '/saved',
-  path: '/saved',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
-  id: '/sitemap.xml',
-  path: '/sitemap.xml',
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SkinAnalysisRoute = SkinAnalysisRouteImport.update({
@@ -92,124 +61,34 @@ const SkinAnalysisRoute = SkinAnalysisRouteImport.update({
   path: '/skin-analysis',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TermsRoute = TermsRouteImport.update({
-  id: '/terms',
-  path: '/terms',
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiChatRoute = ApiChatRouteImport.update({
-  id: '/api/chat',
-  path: '/api/chat',
+const SavedRoute = SavedRouteImport.update({
+  id: '/saved',
+  path: '/saved',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiConsultChatRoute = ApiConsultChatRouteImport.update({
-  id: '/api/consult-chat',
-  path: '/api/consult-chat',
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
-const BookConsultRoute = BookConsultRouteImport.update({
-  id: '/book/consult',
-  path: '/book/consult',
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ClaimIdRoute = ClaimIdRouteImport.update({
-  id: '/claim/$id',
-  path: '/claim/$id',
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DevCrawlRoute = DevCrawlRouteImport.update({
-  id: '/dev/crawl',
-  path: '/dev/crawl',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DevFacemapsRoute = DevFacemapsRouteImport.update({
-  id: '/dev/facemaps',
-  path: '/dev/facemaps',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DevRecommendationsRoute = DevRecommendationsRouteImport.update({
-  id: '/dev/recommendations',
-  path: '/dev/recommendations',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DevTreatmentImagesRoute = DevTreatmentImagesRouteImport.update({
-  id: '/dev/treatment-images',
-  path: '/dev/treatment-images',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LearnSlugRoute = LearnSlugRouteImport.update({
-  id: '/learn/$slug',
-  path: '/learn/$slug',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LegalPrivacyRoute = LegalPrivacyRouteImport.update({
-  id: '/legal/privacy',
-  path: '/legal/privacy',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LegalTermsRoute = LegalTermsRouteImport.update({
-  id: '/legal/terms',
-  path: '/legal/terms',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MatchSlugRoute = MatchSlugRouteImport.update({
-  id: '/match/$slug',
-  path: '/match/$slug',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MedspasSlugRoute = MedspasSlugRouteImport.update({
-  id: '/medspas/$slug',
-  path: '/medspas/$slug',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProviderIdRoute = ProviderIdRouteImport.update({
-  id: '/provider/$id',
-  path: '/provider/$id',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProvidersSlugRoute = ProvidersSlugRouteImport.update({
-  id: '/providers/$slug',
-  path: '/providers/$slug',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ScanIndexRoute = ScanIndexRouteImport.update({
-  id: '/scan/',
-  path: '/scan/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ScanAnalyzingRoute = ScanAnalyzingRouteImport.update({
-  id: '/scan/analyzing',
-  path: '/scan/analyzing',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ScanCaptureRoute = ScanCaptureRouteImport.update({
-  id: '/scan/capture',
-  path: '/scan/capture',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ScanChatRoute = ScanChatRouteImport.update({
-  id: '/scan/chat',
-  path: '/scan/chat',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ScanResultsRoute = ScanResultsRouteImport.update({
-  id: '/scan/results',
-  path: '/scan/results',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SearchIndexRoute = SearchIndexRouteImport.update({
-  id: '/search/',
-  path: '/search/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SearchMapRoute = SearchMapRouteImport.update({
-  id: '/search/map',
-  path: '/search/map',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const StorefrontIdRoute = StorefrontIdRouteImport.update({
-  id: '/storefront/$id',
-  path: '/storefront/$id',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TreatmentsIndexRoute = TreatmentsIndexRouteImport.update({
@@ -217,44 +96,119 @@ const TreatmentsIndexRoute = TreatmentsIndexRouteImport.update({
   path: '/treatments/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicAnalyzeRoute = ApiPublicAnalyzeRouteImport.update({
-  id: '/api/public/analyze',
-  path: '/api/public/analyze',
+const SearchIndexRoute = SearchIndexRouteImport.update({
+  id: '/search/',
+  path: '/search/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicHealthRoute = ApiPublicHealthRouteImport.update({
-  id: '/api/public/health',
-  path: '/api/public/health',
+const ScanIndexRoute = ScanIndexRouteImport.update({
+  id: '/scan/',
+  path: '/scan/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ReportScanIdPreviewRoute = ReportScanIdPreviewRouteImport.update({
-  id: '/report/$scanId/preview',
-  path: '/report/$scanId/preview',
+const StorefrontIdRoute = StorefrontIdRouteImport.update({
+  id: '/storefront/$id',
+  path: '/storefront/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ScanConcernKeyRoute = ScanConcernKeyRouteImport.update({
-  id: '/scan/concern/$key',
-  path: '/scan/concern/$key',
+const SearchMapRoute = SearchMapRouteImport.update({
+  id: '/search/map',
+  path: '/search/map',
   getParentRoute: () => rootRouteImport,
 } as any)
-const StorefrontIdRequestRoute = StorefrontIdRequestRouteImport.update({
-  id: '/storefront_/$id/request',
-  path: '/storefront/$id/request',
+const ScanResultsRoute = ScanResultsRouteImport.update({
+  id: '/scan/results',
+  path: '/scan/results',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TreatmentSlugIndexRoute = TreatmentSlugIndexRouteImport.update({
-  id: '/treatment/$slug/',
-  path: '/treatment/$slug/',
+const ScanChatRoute = ScanChatRouteImport.update({
+  id: '/scan/chat',
+  path: '/scan/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TreatmentSlugReviewsRoute = TreatmentSlugReviewsRouteImport.update({
-  id: '/treatment/$slug/reviews',
-  path: '/treatment/$slug/reviews',
+const ScanCaptureRoute = ScanCaptureRouteImport.update({
+  id: '/scan/capture',
+  path: '/scan/capture',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TreatmentSlugStoryRoute = TreatmentSlugStoryRouteImport.update({
-  id: '/treatment/$slug/story',
-  path: '/treatment/$slug/story',
+const ScanAnalyzingRoute = ScanAnalyzingRouteImport.update({
+  id: '/scan/analyzing',
+  path: '/scan/analyzing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProvidersSlugRoute = ProvidersSlugRouteImport.update({
+  id: '/providers/$slug',
+  path: '/providers/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProviderIdRoute = ProviderIdRouteImport.update({
+  id: '/provider/$id',
+  path: '/provider/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MedspasSlugRoute = MedspasSlugRouteImport.update({
+  id: '/medspas/$slug',
+  path: '/medspas/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MatchSlugRoute = MatchSlugRouteImport.update({
+  id: '/match/$slug',
+  path: '/match/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LegalTermsRoute = LegalTermsRouteImport.update({
+  id: '/legal/terms',
+  path: '/legal/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LegalPrivacyRoute = LegalPrivacyRouteImport.update({
+  id: '/legal/privacy',
+  path: '/legal/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LearnSlugRoute = LearnSlugRouteImport.update({
+  id: '/learn/$slug',
+  path: '/learn/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DevTreatmentImagesRoute = DevTreatmentImagesRouteImport.update({
+  id: '/dev/treatment-images',
+  path: '/dev/treatment-images',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DevRecommendationsRoute = DevRecommendationsRouteImport.update({
+  id: '/dev/recommendations',
+  path: '/dev/recommendations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DevFacemapsRoute = DevFacemapsRouteImport.update({
+  id: '/dev/facemaps',
+  path: '/dev/facemaps',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DevCrawlRoute = DevCrawlRouteImport.update({
+  id: '/dev/crawl',
+  path: '/dev/crawl',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ClaimIdRoute = ClaimIdRouteImport.update({
+  id: '/claim/$id',
+  path: '/claim/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BookConsultRoute = BookConsultRouteImport.update({
+  id: '/book/consult',
+  path: '/book/consult',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiConsultChatRoute = ApiConsultChatRouteImport.update({
+  id: '/api/consult-chat',
+  path: '/api/consult-chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChatRoute = ApiChatRouteImport.update({
+  id: '/api/chat',
+  path: '/api/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TreatmentsSlugIndexRoute = TreatmentsSlugIndexRouteImport.update({
@@ -262,12 +216,51 @@ const TreatmentsSlugIndexRoute = TreatmentsSlugIndexRouteImport.update({
   path: '/treatments/$slug/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TreatmentSlugIndexRoute = TreatmentSlugIndexRouteImport.update({
+  id: '/treatment/$slug/',
+  path: '/treatment/$slug/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TreatmentSlugStoryRoute = TreatmentSlugStoryRouteImport.update({
+  id: '/treatment/$slug/story',
+  path: '/treatment/$slug/story',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TreatmentSlugReviewsRoute = TreatmentSlugReviewsRouteImport.update({
+  id: '/treatment/$slug/reviews',
+  path: '/treatment/$slug/reviews',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StorefrontIdRequestRoute = StorefrontIdRequestRouteImport.update({
+  id: '/storefront_/$id/request',
+  path: '/storefront/$id/request',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ScanConcernKeyRoute = ScanConcernKeyRouteImport.update({
+  id: '/scan/concern/$key',
+  path: '/scan/concern/$key',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReportScanIdPreviewRoute = ReportScanIdPreviewRouteImport.update({
+  id: '/report/$scanId/preview',
+  path: '/report/$scanId/preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicHealthRoute = ApiPublicHealthRouteImport.update({
+  id: '/api/public/health',
+  path: '/api/public/health',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicAnalyzeRoute = ApiPublicAnalyzeRouteImport.update({
+  id: '/api/public/analyze',
+  path: '/api/public/analyze',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
-  '/progress': typeof ProgressRoute
   '/reset-password': typeof ResetPasswordRoute
   '/saved': typeof SavedRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -311,7 +304,6 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
-  '/progress': typeof ProgressRoute
   '/reset-password': typeof ResetPasswordRoute
   '/saved': typeof SavedRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -356,7 +348,6 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
-  '/progress': typeof ProgressRoute
   '/reset-password': typeof ResetPasswordRoute
   '/saved': typeof SavedRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -402,7 +393,6 @@ export interface FileRouteTypes {
     | '/'
     | '/privacy'
     | '/profile'
-    | '/progress'
     | '/reset-password'
     | '/saved'
     | '/sitemap.xml'
@@ -446,7 +436,6 @@ export interface FileRouteTypes {
     | '/'
     | '/privacy'
     | '/profile'
-    | '/progress'
     | '/reset-password'
     | '/saved'
     | '/sitemap.xml'
@@ -490,7 +479,6 @@ export interface FileRouteTypes {
     | '/'
     | '/privacy'
     | '/profile'
-    | '/progress'
     | '/reset-password'
     | '/saved'
     | '/sitemap.xml'
@@ -535,7 +523,6 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   PrivacyRoute: typeof PrivacyRoute
   ProfileRoute: typeof ProfileRoute
-  ProgressRoute: typeof ProgressRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SavedRoute: typeof SavedRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
@@ -578,53 +565,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/privacy': {
-      id: '/privacy'
-      path: '/privacy'
-      fullPath: '/privacy'
-      preLoaderRoute: typeof PrivacyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/profile': {
-      id: '/profile'
-      path: '/profile'
-      fullPath: '/profile'
-      preLoaderRoute: typeof ProfileRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/progress': {
-      id: '/progress'
-      path: '/progress'
-      fullPath: '/progress'
-      preLoaderRoute: typeof ProgressRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/reset-password': {
-      id: '/reset-password'
-      path: '/reset-password'
-      fullPath: '/reset-password'
-      preLoaderRoute: typeof ResetPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/saved': {
-      id: '/saved'
-      path: '/saved'
-      fullPath: '/saved'
-      preLoaderRoute: typeof SavedRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sitemap.xml': {
-      id: '/sitemap.xml'
-      path: '/sitemap.xml'
-      fullPath: '/sitemap.xml'
-      preLoaderRoute: typeof SitemapDotxmlRouteImport
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/skin-analysis': {
@@ -634,172 +579,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SkinAnalysisRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/terms': {
-      id: '/terms'
-      path: '/terms'
-      fullPath: '/terms'
-      preLoaderRoute: typeof TermsRouteImport
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/chat': {
-      id: '/api/chat'
-      path: '/api/chat'
-      fullPath: '/api/chat'
-      preLoaderRoute: typeof ApiChatRouteImport
+    '/saved': {
+      id: '/saved'
+      path: '/saved'
+      fullPath: '/saved'
+      preLoaderRoute: typeof SavedRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/consult-chat': {
-      id: '/api/consult-chat'
-      path: '/api/consult-chat'
-      fullPath: '/api/consult-chat'
-      preLoaderRoute: typeof ApiConsultChatRouteImport
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/book/consult': {
-      id: '/book/consult'
-      path: '/book/consult'
-      fullPath: '/book/consult'
-      preLoaderRoute: typeof BookConsultRouteImport
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/claim/$id': {
-      id: '/claim/$id'
-      path: '/claim/$id'
-      fullPath: '/claim/$id'
-      preLoaderRoute: typeof ClaimIdRouteImport
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/dev/crawl': {
-      id: '/dev/crawl'
-      path: '/dev/crawl'
-      fullPath: '/dev/crawl'
-      preLoaderRoute: typeof DevCrawlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dev/facemaps': {
-      id: '/dev/facemaps'
-      path: '/dev/facemaps'
-      fullPath: '/dev/facemaps'
-      preLoaderRoute: typeof DevFacemapsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dev/recommendations': {
-      id: '/dev/recommendations'
-      path: '/dev/recommendations'
-      fullPath: '/dev/recommendations'
-      preLoaderRoute: typeof DevRecommendationsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dev/treatment-images': {
-      id: '/dev/treatment-images'
-      path: '/dev/treatment-images'
-      fullPath: '/dev/treatment-images'
-      preLoaderRoute: typeof DevTreatmentImagesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/learn/$slug': {
-      id: '/learn/$slug'
-      path: '/learn/$slug'
-      fullPath: '/learn/$slug'
-      preLoaderRoute: typeof LearnSlugRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/legal/privacy': {
-      id: '/legal/privacy'
-      path: '/legal/privacy'
-      fullPath: '/legal/privacy'
-      preLoaderRoute: typeof LegalPrivacyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/legal/terms': {
-      id: '/legal/terms'
-      path: '/legal/terms'
-      fullPath: '/legal/terms'
-      preLoaderRoute: typeof LegalTermsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/match/$slug': {
-      id: '/match/$slug'
-      path: '/match/$slug'
-      fullPath: '/match/$slug'
-      preLoaderRoute: typeof MatchSlugRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/medspas/$slug': {
-      id: '/medspas/$slug'
-      path: '/medspas/$slug'
-      fullPath: '/medspas/$slug'
-      preLoaderRoute: typeof MedspasSlugRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/provider/$id': {
-      id: '/provider/$id'
-      path: '/provider/$id'
-      fullPath: '/provider/$id'
-      preLoaderRoute: typeof ProviderIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/providers/$slug': {
-      id: '/providers/$slug'
-      path: '/providers/$slug'
-      fullPath: '/providers/$slug'
-      preLoaderRoute: typeof ProvidersSlugRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/scan/': {
-      id: '/scan/'
-      path: '/scan'
-      fullPath: '/scan/'
-      preLoaderRoute: typeof ScanIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/scan/analyzing': {
-      id: '/scan/analyzing'
-      path: '/scan/analyzing'
-      fullPath: '/scan/analyzing'
-      preLoaderRoute: typeof ScanAnalyzingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/scan/capture': {
-      id: '/scan/capture'
-      path: '/scan/capture'
-      fullPath: '/scan/capture'
-      preLoaderRoute: typeof ScanCaptureRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/scan/chat': {
-      id: '/scan/chat'
-      path: '/scan/chat'
-      fullPath: '/scan/chat'
-      preLoaderRoute: typeof ScanChatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/scan/results': {
-      id: '/scan/results'
-      path: '/scan/results'
-      fullPath: '/scan/results'
-      preLoaderRoute: typeof ScanResultsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/search/': {
-      id: '/search/'
-      path: '/search'
-      fullPath: '/search/'
-      preLoaderRoute: typeof SearchIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/search/map': {
-      id: '/search/map'
-      path: '/search/map'
-      fullPath: '/search/map'
-      preLoaderRoute: typeof SearchMapRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/storefront/$id': {
-      id: '/storefront/$id'
-      path: '/storefront/$id'
-      fullPath: '/storefront/$id'
-      preLoaderRoute: typeof StorefrontIdRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/treatments/': {
@@ -809,60 +628,165 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TreatmentsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/analyze': {
-      id: '/api/public/analyze'
-      path: '/api/public/analyze'
-      fullPath: '/api/public/analyze'
-      preLoaderRoute: typeof ApiPublicAnalyzeRouteImport
+    '/search/': {
+      id: '/search/'
+      path: '/search'
+      fullPath: '/search/'
+      preLoaderRoute: typeof SearchIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/health': {
-      id: '/api/public/health'
-      path: '/api/public/health'
-      fullPath: '/api/public/health'
-      preLoaderRoute: typeof ApiPublicHealthRouteImport
+    '/scan/': {
+      id: '/scan/'
+      path: '/scan'
+      fullPath: '/scan/'
+      preLoaderRoute: typeof ScanIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/report/$scanId/preview': {
-      id: '/report/$scanId/preview'
-      path: '/report/$scanId/preview'
-      fullPath: '/report/$scanId/preview'
-      preLoaderRoute: typeof ReportScanIdPreviewRouteImport
+    '/storefront/$id': {
+      id: '/storefront/$id'
+      path: '/storefront/$id'
+      fullPath: '/storefront/$id'
+      preLoaderRoute: typeof StorefrontIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/scan/concern/$key': {
-      id: '/scan/concern/$key'
-      path: '/scan/concern/$key'
-      fullPath: '/scan/concern/$key'
-      preLoaderRoute: typeof ScanConcernKeyRouteImport
+    '/search/map': {
+      id: '/search/map'
+      path: '/search/map'
+      fullPath: '/search/map'
+      preLoaderRoute: typeof SearchMapRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/storefront_/$id/request': {
-      id: '/storefront_/$id/request'
-      path: '/storefront/$id/request'
-      fullPath: '/storefront/$id/request'
-      preLoaderRoute: typeof StorefrontIdRequestRouteImport
+    '/scan/results': {
+      id: '/scan/results'
+      path: '/scan/results'
+      fullPath: '/scan/results'
+      preLoaderRoute: typeof ScanResultsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/treatment/$slug/': {
-      id: '/treatment/$slug/'
-      path: '/treatment/$slug'
-      fullPath: '/treatment/$slug/'
-      preLoaderRoute: typeof TreatmentSlugIndexRouteImport
+    '/scan/chat': {
+      id: '/scan/chat'
+      path: '/scan/chat'
+      fullPath: '/scan/chat'
+      preLoaderRoute: typeof ScanChatRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/treatment/$slug/reviews': {
-      id: '/treatment/$slug/reviews'
-      path: '/treatment/$slug/reviews'
-      fullPath: '/treatment/$slug/reviews'
-      preLoaderRoute: typeof TreatmentSlugReviewsRouteImport
+    '/scan/capture': {
+      id: '/scan/capture'
+      path: '/scan/capture'
+      fullPath: '/scan/capture'
+      preLoaderRoute: typeof ScanCaptureRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/treatment/$slug/story': {
-      id: '/treatment/$slug/story'
-      path: '/treatment/$slug/story'
-      fullPath: '/treatment/$slug/story'
-      preLoaderRoute: typeof TreatmentSlugStoryRouteImport
+    '/scan/analyzing': {
+      id: '/scan/analyzing'
+      path: '/scan/analyzing'
+      fullPath: '/scan/analyzing'
+      preLoaderRoute: typeof ScanAnalyzingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/providers/$slug': {
+      id: '/providers/$slug'
+      path: '/providers/$slug'
+      fullPath: '/providers/$slug'
+      preLoaderRoute: typeof ProvidersSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/provider/$id': {
+      id: '/provider/$id'
+      path: '/provider/$id'
+      fullPath: '/provider/$id'
+      preLoaderRoute: typeof ProviderIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/medspas/$slug': {
+      id: '/medspas/$slug'
+      path: '/medspas/$slug'
+      fullPath: '/medspas/$slug'
+      preLoaderRoute: typeof MedspasSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/match/$slug': {
+      id: '/match/$slug'
+      path: '/match/$slug'
+      fullPath: '/match/$slug'
+      preLoaderRoute: typeof MatchSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legal/terms': {
+      id: '/legal/terms'
+      path: '/legal/terms'
+      fullPath: '/legal/terms'
+      preLoaderRoute: typeof LegalTermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legal/privacy': {
+      id: '/legal/privacy'
+      path: '/legal/privacy'
+      fullPath: '/legal/privacy'
+      preLoaderRoute: typeof LegalPrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/learn/$slug': {
+      id: '/learn/$slug'
+      path: '/learn/$slug'
+      fullPath: '/learn/$slug'
+      preLoaderRoute: typeof LearnSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dev/treatment-images': {
+      id: '/dev/treatment-images'
+      path: '/dev/treatment-images'
+      fullPath: '/dev/treatment-images'
+      preLoaderRoute: typeof DevTreatmentImagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dev/recommendations': {
+      id: '/dev/recommendations'
+      path: '/dev/recommendations'
+      fullPath: '/dev/recommendations'
+      preLoaderRoute: typeof DevRecommendationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dev/facemaps': {
+      id: '/dev/facemaps'
+      path: '/dev/facemaps'
+      fullPath: '/dev/facemaps'
+      preLoaderRoute: typeof DevFacemapsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dev/crawl': {
+      id: '/dev/crawl'
+      path: '/dev/crawl'
+      fullPath: '/dev/crawl'
+      preLoaderRoute: typeof DevCrawlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/claim/$id': {
+      id: '/claim/$id'
+      path: '/claim/$id'
+      fullPath: '/claim/$id'
+      preLoaderRoute: typeof ClaimIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/book/consult': {
+      id: '/book/consult'
+      path: '/book/consult'
+      fullPath: '/book/consult'
+      preLoaderRoute: typeof BookConsultRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/consult-chat': {
+      id: '/api/consult-chat'
+      path: '/api/consult-chat'
+      fullPath: '/api/consult-chat'
+      preLoaderRoute: typeof ApiConsultChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat': {
+      id: '/api/chat'
+      path: '/api/chat'
+      fullPath: '/api/chat'
+      preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/treatments/$slug/': {
@@ -872,6 +796,62 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TreatmentsSlugIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/treatment/$slug/': {
+      id: '/treatment/$slug/'
+      path: '/treatment/$slug'
+      fullPath: '/treatment/$slug/'
+      preLoaderRoute: typeof TreatmentSlugIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/treatment/$slug/story': {
+      id: '/treatment/$slug/story'
+      path: '/treatment/$slug/story'
+      fullPath: '/treatment/$slug/story'
+      preLoaderRoute: typeof TreatmentSlugStoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/treatment/$slug/reviews': {
+      id: '/treatment/$slug/reviews'
+      path: '/treatment/$slug/reviews'
+      fullPath: '/treatment/$slug/reviews'
+      preLoaderRoute: typeof TreatmentSlugReviewsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/storefront_/$id/request': {
+      id: '/storefront_/$id/request'
+      path: '/storefront/$id/request'
+      fullPath: '/storefront/$id/request'
+      preLoaderRoute: typeof StorefrontIdRequestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/scan/concern/$key': {
+      id: '/scan/concern/$key'
+      path: '/scan/concern/$key'
+      fullPath: '/scan/concern/$key'
+      preLoaderRoute: typeof ScanConcernKeyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/report/$scanId/preview': {
+      id: '/report/$scanId/preview'
+      path: '/report/$scanId/preview'
+      fullPath: '/report/$scanId/preview'
+      preLoaderRoute: typeof ReportScanIdPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/health': {
+      id: '/api/public/health'
+      path: '/api/public/health'
+      fullPath: '/api/public/health'
+      preLoaderRoute: typeof ApiPublicHealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/analyze': {
+      id: '/api/public/analyze'
+      path: '/api/public/analyze'
+      fullPath: '/api/public/analyze'
+      preLoaderRoute: typeof ApiPublicAnalyzeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -879,7 +859,6 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   PrivacyRoute: PrivacyRoute,
   ProfileRoute: ProfileRoute,
-  ProgressRoute: ProgressRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SavedRoute: SavedRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,

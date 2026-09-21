@@ -8,8 +8,6 @@ export interface ConcernMatch {
   /** the concern this treatment is here for, in ui words */
   concernLabel: string;
   priceFrom: number | null;
-  downtime: string | null;
-  family: string | null;
   weight: number;
 }
 
@@ -63,9 +61,7 @@ export async function treatmentsForConcerns(
 
   const { data } = await supabase
     .from("concern_treatments")
-    .select(
-      "concern_key, treatment_slug, strength, treatments!inner(slug, name, price_from, downtime, family)",
-    )
+    .select("concern_key, treatment_slug, strength, treatments!inner(slug, name, price_from)")
     .in("concern_key", labels);
 
   const best = new Map<string, ConcernMatch>();
@@ -74,13 +70,7 @@ export async function treatmentsForConcerns(
     concern_key: string;
     treatment_slug: string;
     strength: number | null;
-    treatments: {
-      slug: string;
-      name: string;
-      price_from: number | null;
-      downtime: string | null;
-      family: string | null;
-    } | null;
+    treatments: { slug: string; name: string; price_from: number | null } | null;
   }[]) {
     const t = row.treatments;
     if (!t) continue;
@@ -93,8 +83,6 @@ export async function treatmentsForConcerns(
       name: displayTreatmentName(t.name, t.slug),
       concernLabel: row.concern_key,
       priceFrom: t.price_from === null ? null : Number(t.price_from),
-      downtime: t.downtime,
-      family: t.family,
       weight,
     });
   }
@@ -114,8 +102,6 @@ export async function treatmentsForConcerns(
         name: t.name,
         concernLabel: labels[0],
         priceFrom: t.priceFrom,
-        downtime: t.downtime,
-        family: t.family,
         weight: 0,
       });
     }
@@ -130,7 +116,6 @@ export interface ConcernTreatment {
   shortDescription: string | null;
   priceFrom: number | null;
   downtime: string | null;
-  family: string | null;
   strength: number;
 }
 
@@ -141,7 +126,6 @@ function toConcernTreatment(t: TreatmentRow, strength: number): ConcernTreatment
     shortDescription: t.short_description,
     priceFrom: t.price_from === null ? null : Number(t.price_from),
     downtime: t.downtime,
-    family: t.family,
     strength,
   };
 }
@@ -187,8 +171,7 @@ export async function treatmentsForOneConcern(
     .sort(
       (a, b) =>
         b.strength - a.strength ||
-        (a.row!.price_from ?? Number.MAX_SAFE_INTEGER) -
-          (b.row!.price_from ?? Number.MAX_SAFE_INTEGER),
+        (a.row!.price_from ?? Number.MAX_SAFE_INTEGER) - (b.row!.price_from ?? Number.MAX_SAFE_INTEGER),
     );
   for (const r of mappedRows) push(r.row, r.strength);
 
@@ -199,8 +182,7 @@ export async function treatmentsForOneConcern(
 
   // 3. search synonym match
   if (out.length < min) {
-    for (const t of catalogue.filter((t) => matchesConcern(t.search_synonyms, concernLabel)))
-      push(t, 1);
+    for (const t of catalogue.filter((t) => matchesConcern(t.search_synonyms, concernLabel))) push(t, 1);
   }
 
   // 4. same family as whatever we already have

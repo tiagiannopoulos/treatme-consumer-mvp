@@ -19,9 +19,11 @@ import { AnalysisFooter } from "@/components/treatme/AnalysisFooter";
 import { PillButton } from "@/components/treatme/PillButton";
 import { useScan } from "@/lib/scan-store";
 import { usePatient } from "@/lib/patient-store";
-import { toConcernRows } from "@/lib/scan-concerns";
+import { toConcernRows, SCAN_CONCERN_LABEL } from "@/lib/scan-concerns";
 import { supabase } from "@/integrations/supabase/client";
 import { displayTreatmentName } from "@/lib/treatment-labels";
+import { treatmentMatchQuery } from "@/lib/treatment-match";
+import { usePatientLocation } from "@/lib/patient-location";
 import {
   CONSULT_KEY_LABEL,
   EMPTY_EXTRACTED,
@@ -158,9 +160,9 @@ export function ConsultChatClient({ treatmentSlug }: { treatmentSlug?: string } 
           to="/scan/results"
           className="inline-flex items-center gap-1 text-[13px] font-semibold lowercase text-ink-mute"
         >
-          <ArrowLeft className="size-4" /> my snapshot
+          <ArrowLeft className="size-4" /> back to results
         </Link>
-        <h1 className="brand-eyebrow">ask treatme</h1>
+        <h1 className="brand-eyebrow">consult</h1>
       </div>
 
       {stage !== "escalate" && (
@@ -211,7 +213,11 @@ export function ConsultChatClient({ treatmentSlug }: { treatmentSlug?: string } 
                 </p>
 
                 {message.stage === "summary" && (message.treatmentSlugs?.length ?? 0) > 0 && (
-                  <SummaryCard slugs={message.treatmentSlugs ?? []} />
+                  <SummaryCard
+                    slugs={message.treatmentSlugs ?? []}
+                    concerns={rows.map((r) => SCAN_CONCERN_LABEL[r.concern_key] ?? r.concern_key)}
+                    budget={profile.budget}
+                  />
                 )}
 
                 {message.stage === "escalate" && index === messages.length - 1 && !ended && (
@@ -291,8 +297,17 @@ export function ConsultChatClient({ treatmentSlug }: { treatmentSlug?: string } 
   );
 }
 
-function SummaryCard({ slugs }: { slugs: string[] }) {
+function SummaryCard({
+  slugs,
+  concerns,
+  budget,
+}: {
+  slugs: string[];
+  concerns: string[];
+  budget: ReturnType<typeof usePatient>["profile"]["budget"];
+}) {
   const navigate = useNavigate();
+  const { location } = usePatientLocation();
 
   const { data: treatments = [] } = useQuery({
     queryKey: ["consult-summary-treatments", slugs.join(",")],
@@ -310,6 +325,17 @@ function SummaryCard({ slugs }: { slugs: string[] }) {
     enabled: slugs.length > 0,
     staleTime: 5 * 60_000,
   });
+
+  const { data: match } = useQuery(
+    treatmentMatchQuery(slugs[0] ?? "", {
+      concerns: concerns.slice(0, 3),
+      center: location ? { lat: location.lat, lng: location.lng } : null,
+      radiusKm: 25,
+      budget,
+    }),
+  );
+
+  const providers = (match?.providers ?? []).slice(0, 3);
 
   return (
     <div className="w-full rounded-3xl border border-line bg-white p-4">
@@ -331,14 +357,50 @@ function SummaryCard({ slugs }: { slugs: string[] }) {
                 )}
               </div>
               <PillButton
-                onClick={() => navigate({ to: "/treatment/$slug", params: { slug: t.slug } })}
-                variant="outline"
+                onClick={() => navigate({ to: "/book/consult", search: { treatmentSlug: t.slug } })}
               >
-                learn more
+                book consult
               </PillButton>
             </div>
           ))}
       </div>
+
+      {providers.length > 0 && (
+        <>
+          <p className="brand-eyebrow mt-5">who i'd send you to</p>
+          <div className="mt-3 space-y-2">
+            {providers.map((p) => (
+              <div
+                key={p.id}
+                className="flex items-center justify-between gap-3 rounded-2xl bg-cream px-3 py-3"
+              >
+                <div className="min-w-0">
+                  <p className="text-[14px] font-semibold lowercase leading-snug text-ink break-words">
+                    {p.name}
+                  </p>
+                  <p className="text-[12px] lowercase leading-snug text-ink-mute break-words">
+                    {p.clinicName}, {p.neighbourhood}
+                  </p>
+                </div>
+                <PillButton
+                  onClick={() =>
+                    navigate({
+                      to: "/book/consult",
+                      search: {
+                        treatmentSlug: slugs[0],
+                        providerId: p.id,
+                        storefrontId: p.clinicId,
+                      },
+                    })
+                  }
+                >
+                  book consult
+                </PillButton>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }

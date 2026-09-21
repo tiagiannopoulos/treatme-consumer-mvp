@@ -5,6 +5,9 @@ import { ScanPhoto } from "@/components/treatme/ScanPhoto";
 import { useScan } from "@/lib/scan-store";
 import { PillButton } from "@/components/treatme/PillButton";
 import { SavedTreatments } from "@/components/treatme/profile/SavedTreatments";
+import { TreatmentJourney } from "@/components/treatme/profile/TreatmentJourney";
+import { UpcomingAppointments } from "@/components/treatme/profile/UpcomingAppointments";
+import { TxLog } from "@/components/treatme/profile/TxLog";
 import { AboutYourSkin } from "@/components/treatme/profile/AboutYourSkin";
 import { AccountCard } from "@/components/treatme/profile/AccountCard";
 import { MyScans } from "@/components/treatme/profile/MyScans";
@@ -32,7 +35,7 @@ function SignedOut() {
       <div className="mt-2 rounded-[18px] p-6" style={{ backgroundColor: "#FFEDB4" }}>
         <h1 className="text-[16px] font-semibold lowercase">save your results.</h1>
         <p className="mt-2 text-[13px] lowercase leading-relaxed text-ink/65">
-          you'll need an account to save scans and compare your progress. takes a second.
+          you'll need an account to scan and to book. takes a second.
         </p>
         <div className="mt-4">
           <PillButton fullWidth onClick={() => openAuth()}>
@@ -41,12 +44,12 @@ function SignedOut() {
         </div>
       </div>
       <p className="mt-4 text-[12.5px] lowercase leading-relaxed text-ink/55">
-        your scan results stay private and you can delete saved scans at any time.
+        everything else stays open. keep browsing treatments, clinics and providers without an account.
       </p>
       <div className="mt-4 flex flex-col gap-2">
-        <Link to="/scan">
+        <Link to="/treatments">
           <PillButton fullWidth variant="outline">
-            start a scan
+            browse treatments
           </PillButton>
         </Link>
       </div>
@@ -72,7 +75,7 @@ function ProfilePage() {
           <div className="flex-1">
             <p className="font-bold lowercase">latest scan</p>
             <p className="text-[12px] lowercase text-ink-mute">
-              your latest skin snapshot is saved
+              skin age {analysis.skinAge} · fitzpatrick {analysis.fitzpatrick}
             </p>
           </div>
           <Link to="/scan/results">
@@ -90,7 +93,10 @@ function ProfilePage() {
       </div>
 
       <MyScans />
+      <TreatmentJourney />
+      <UpcomingAppointments />
       <SavedTreatments limit={3} />
+      <TxLog />
       <AboutYourSkin />
       <DangerZone />
 
