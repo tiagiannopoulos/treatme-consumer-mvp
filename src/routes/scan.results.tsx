@@ -1,53 +1,74 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { ChevronRight, Check } from "lucide-react";
-import { useScan } from "@/lib/scan-store";
-import { toConcernRows, overallScore, SCAN_CONCERN_LABEL, SCAN_CONCERN_KEYS } from "@/lib/scan-concerns";
-import { LOW_QUALITY_NOTE } from "@/lib/photo-check";
-import { treatmentsForConcerns, bestTreatmentByImproves } from "@/lib/concern-treatments";
-import { useScanPhotoSource } from "@/lib/scan-photo";
-import { ScanPhoto } from "@/components/treatme/ScanPhoto";
+import { ArrowRight, ChevronRight, Download, MessageCircle, RotateCcw } from "lucide-react";
+
 import { AnalysisFooter } from "@/components/treatme/AnalysisFooter";
+import { ScanPhoto } from "@/components/treatme/ScanPhoto";
 import { SharePdfSheet } from "@/components/treatme/SharePdfSheet";
-import { SaveTreatmentButton } from "@/components/treatme/SaveTreatmentButton";
 import { fetchSavedScan } from "@/lib/scan-history";
+import {
+  bandFor,
+  bandTint,
+  overallScore,
+  SCAN_CONCERN_KEYS,
+  SCAN_CONCERN_LABEL,
+  toConcernRows,
+} from "@/lib/scan-concerns";
+import { useScan } from "@/lib/scan-store";
+import { useScanPhotoSource } from "@/lib/scan-photo";
+import { LOW_QUALITY_NOTE } from "@/lib/photo-check";
 import { getRecommendations } from "@/lib/recommendations";
 import { topConcerns } from "@/lib/skinAnalysis";
-import { FaceMap } from "@/components/treatme/FaceMap";
-import { MarkerOverlay } from "@/components/treatme/MarkerOverlay";
-import { markerDrawing } from "@/lib/marker-shapes";
-import { findIndicator, skinIndicatorsQuery } from "@/lib/skin-indicators";
-
 
 export const Route = createFileRoute("/scan/results")({
   validateSearch: (search: Record<string, unknown>): { id?: string } =>
     typeof search.id === "string" ? { id: search.id } : {},
   head: () => ({
     meta: [
-      { title: "analysis results · treatme" },
-      { name: "description", content: "your skin, read honestly. see every concern on your own face." },
-      { property: "og:title", content: "analysis results · treatme" },
-      { property: "og:description", content: "your skin, read honestly. see every concern on your own face." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
+      { title: "your skin snapshot · treatme" },
+      {
+        name: "description",
+        content: "a simple cosmetic skin snapshot with clear priorities and next steps.",
+      },
     ],
   }),
   component: ResultsPage,
 });
 
+const INGREDIENTS: Record<string, string[]> = {
+  pores: ["niacinamide", "salicylic acid", "retinoid"],
+  breakouts: ["salicylic acid", "benzoyl peroxide", "adapalene"],
+  texture: ["retinoid", "lactic acid", "ceramides"],
+  oiliness: ["niacinamide", "salicylic acid", "lightweight moisturizer"],
+  redness: ["azelaic acid", "centella", "ceramides"],
+  pigmentation: ["vitamin c", "azelaic acid", "daily spf"],
+  uniformness: ["vitamin c", "niacinamide", "daily spf"],
+  radiance: ["vitamin c", "lactic acid", "daily spf"],
+  lines: ["retinoid", "peptides", "daily spf"],
+  firmness: ["retinoid", "peptides", "daily spf"],
+  volume_loss: ["peptides", "hyaluronic acid", "daily spf"],
+  hydration: ["hyaluronic acid", "glycerin", "ceramides"],
+  dark_circles: ["caffeine", "vitamin c", "daily spf"],
+  under_eye_puffiness: ["caffeine", "peptides", "cool compress"],
+  tear_trough: ["hyaluronic acid", "peptides", "daily spf"],
+  eyelid_heaviness: ["peptides", "caffeine", "daily spf"],
+};
+
+function priorityCopy(score: number) {
+  if (score >= 85) return "looking balanced";
+  if (score >= 65) return "keep an eye on this";
+  return "focus here first";
+}
+
 function ResultsPage() {
   const navigate = useNavigate();
   const { id: requestedId } = Route.useSearch();
-  const { result, analysis, scanId, photoQuality, measured, landmarks, hydrate, setResult } = useScan();
+  const { result, analysis, scanId, photoQuality, measured, hydrate, setResult } = useScan();
   const photoSource = useScanPhotoSource();
   const [shareOpen, setShareOpen] = useState(false);
   const [loading, setLoading] = useState(Boolean(requestedId && requestedId !== scanId));
   const loadedFor = useRef<string | null>(null);
 
-  // reopening a saved scan from the profile tab: the scores are a few kilobytes
-  // of json, so they land first and the screen renders straight away. the photo
-  // and the treatment matches arrive afterwards, they never gate the page.
   useEffect(() => {
     if (!requestedId || requestedId === scanId || loadedFor.current === requestedId) return;
     loadedFor.current = requestedId;
@@ -71,7 +92,6 @@ function ResultsPage() {
         goalRecommendations: [],
       });
       if (saved.result) {
-        // in the background: the screen is already up by now
         const { scanDriven, goalDriven } = await getRecommendations(topConcerns(saved.result), []);
         if (alive) setResult(saved.result, scanDriven, goalDriven);
       }
@@ -79,296 +99,178 @@ function ResultsPage() {
     return () => {
       alive = false;
     };
-  }, [requestedId, scanId, hydrate, setResult]);
+  }, [hydrate, requestedId, scanId, setResult]);
 
-  const rows = useMemo(() => (result ? toConcernRows(result, measured) : []), [result, measured]);
-  // symmetry is persisted but is not one of the four groups, so it stays out
-  // of the headline ordering and the treatment matching.
-  const ordered = useMemo(
+  const rows = useMemo(() => (result ? toConcernRows(result, measured) : []), [measured, result]);
+  const ranked = useMemo(
     () =>
-      [...rows].sort((a, b) => a.score - b.score),
+      rows
+        .filter((row) => SCAN_CONCERN_KEYS.includes(row.concern_key))
+        .sort((a, b) => a.score - b.score),
     [rows],
   );
-  const overall = useMemo(() => (rows.length ? overallScore(rows) : 0), [rows]);
-  const { data: indicators = [] } = useQuery(skinIndicatorsQuery());
-
-  // the four groups only: symmetry and fine lines render, but do not drive matching
-  const grid = useMemo(
-    () => ordered.filter((r) => SCAN_CONCERN_KEYS.includes(r.concern_key)),
-    [ordered],
+  const priorities = ranked.slice(0, 3);
+  const score = overallScore(ranked);
+  const scoreBand = bandFor(score);
+  const ingredientList = useMemo(
+    () =>
+      Array.from(new Set(priorities.flatMap((row) => INGREDIENTS[row.concern_key] ?? []))).slice(
+        0,
+        6,
+      ),
+    [priorities],
   );
-  const worst = grid[0];
-
-  const { data: matches = [] } = useQuery({
-    queryKey: ["concern-treatments", grid.map((r) => `${r.concern_key}:${r.score}`).join(",")],
-    queryFn: () => treatmentsForConcerns(grid, 5),
-    enabled: grid.length > 0,
-    staleTime: 5 * 60 * 1000,
-  });
-
-  // best treatment for the top concern, matched against the improves array.
-  const { data: topSlug } = useQuery({
-    queryKey: ["best-treatment-improves", worst?.concern_key],
-    queryFn: () => bestTreatmentByImproves(SCAN_CONCERN_LABEL[worst!.concern_key] ?? worst!.concern_key),
-    enabled: !!worst,
-    staleTime: 5 * 60 * 1000,
-  });
 
   if (loading && !result) return <ResultsSkeleton />;
 
   if (!result) {
     return (
-      <div className="px-6 pt-12 text-center">
+      <div className="px-6 pt-16 text-center">
         <p className="brand-eyebrow">no scan yet</p>
-        <h1 className="brand-display text-3xl mt-2">let's read your skin first.</h1>
-        <div className="mt-6">
-          <Link to="/scan">
-            <span className="inline-flex items-center justify-center rounded-full bg-ink text-cream h-12 px-6 font-semibold lowercase">
-              scan me
-            </span>
-          </Link>
-        </div>
+        <h1 className="brand-display mt-3 text-3xl lowercase">let's read your skin first.</h1>
+        <Link
+          to="/scan"
+          className="mt-6 inline-flex h-12 items-center justify-center rounded-full bg-ink px-6 font-semibold lowercase text-cream"
+        >
+          start a scan
+        </Link>
       </div>
     );
   }
 
-
-  const openTopConcern = () => {
-    if (!worst) return;
-    const label = SCAN_CONCERN_LABEL[worst.concern_key] ?? worst.concern_key;
-    if (topSlug) {
-      navigate({ to: "/match/$slug", params: { slug: topSlug } });
-    } else {
-      navigate({ to: "/search", search: { q: label, scope: undefined, treatment: undefined } });
-    }
-  };
-
   return (
-    <div className="pb-[calc(3.5rem+env(safe-area-inset-bottom))]">
-      {/* header */}
-      <header
-        className="px-6 flex items-center justify-between gap-3"
-        style={{ paddingTop: "calc(env(safe-area-inset-top) + 0.75rem)" }}
-      >
-        <h1 className="brand-display text-[26px] lowercase">analysis results</h1>
-        {photoQuality === "poor" && (
-          <p className="mt-1 text-[13px] lowercase text-ink/55">{LOW_QUALITY_NOTE}</p>
-        )}
-        <button
-          type="button"
-          onClick={() => navigate({ to: "/scan/capture" })}
-          className="shrink-0 rounded-full border border-ink/25 px-4 h-9 text-[13px] font-semibold lowercase"
-        >
-          retake
-        </button>
-      </header>
-
-      {/* the photo lives here and only here */}
-      <div className="mt-4 mx-6 rounded-3xl overflow-hidden border border-ink/10">
-        <ScanPhoto source={photoSource} className="relative aspect-[4/5]" />
-      </div>
-
-
-      {/* stat cards */}
-      <div className="mt-4 px-6 grid grid-cols-2 gap-3">
-        <div className="rounded-2xl border border-ink/10 bg-white p-4">
-          <p className="text-[12px] lowercase text-ink">skin type</p>
-          <p className="font-bold text-[19px] mt-2 lowercase leading-tight">
-            {analysis?.skinType ?? "unknown"}
-          </p>
+    <div className="mx-auto w-full max-w-[430px] pb-[calc(6.5rem+env(safe-area-inset-bottom))]">
+      <header className="flex items-end justify-between gap-4 px-5 pt-5">
+        <div>
+          <p className="brand-eyebrow">your results</p>
+          <h1 className="brand-display mt-2 text-[34px] lowercase">skin snapshot.</h1>
         </div>
-        <div className="rounded-2xl border border-ink/10 bg-white p-4">
-          <p className="text-[12px] lowercase text-ink">skin tone</p>
-          <p className="font-bold text-[19px] mt-2 lowercase leading-tight">
-            {analysis ? `fitzpatrick ${analysis.fitzpatrick.toLowerCase()}` : "unknown"}
-          </p>
-        </div>
-        <div className="rounded-2xl border border-ink/10 bg-white p-4">
-          <p className="text-[12px] lowercase text-ink">overall score</p>
-          <p className="brand-display text-[34px] leading-none mt-2">
-            {overall}
-            <span className="text-[15px] text-ink-mute">/100</span>
-          </p>
-        </div>
-        {worst && (
-          <button
-            type="button"
-            onClick={openTopConcern}
-            className="text-left rounded-2xl p-4"
-            style={{ backgroundColor: "#FFEDB4" }}
-          >
-            <p className="text-[12px] lowercase text-ink">top concern</p>
-            <p className="font-bold text-[18px] mt-2 lowercase leading-tight">
-              {SCAN_CONCERN_LABEL[worst.concern_key]}
-            </p>
-            <p className="text-[13px] text-ink/70 mt-1">{worst.score}/100</p>
-          </button>
-        )}
-      </div>
-
-
-
-
-      {/* the detail */}
-      <div className="mt-8">
-        <div className="px-6">
-          <h2 className="brand-display text-[24px] lowercase">the detail</h2>
-          <p className="text-[13px] text-ink/55 mt-1 lowercase">indicator by indicator, lowest first</p>
-        </div>
-        <div className="mt-4 overflow-x-auto scrollbar-none">
-          <div className="flex gap-3 px-6 pb-2">
-            {ordered.map((row) => {
-              const ind = findIndicator(indicators, row.concern_key);
-              // ten strongest only: more than that is mud at this size
-              const drawing = markerDrawing({
-                regions: row.regions,
-                accent: ind?.accent ?? "#F8A1C6",
-                overlayKind: ind?.overlayKind ?? "patches_soft",
-                score: row.score,
-                landmarks,
-                seed: scanId,
-                limit: 10,
-              });
-              return (
-                <button
-                  key={row.concern_key}
-                  type="button"
-                  onClick={() => navigate({ to: "/scan/concern/$key", params: { key: ind?.slug ?? row.concern_key } })}
-                  className="text-left shrink-0 w-[112px]"
-                >
-                  {photoSource.url ? (
-                    <ScanPhoto
-                      source={photoSource}
-                      alt={`your photo with ${ind?.name ?? row.concern_key} marked`}
-                      className="w-[112px] aspect-[3/4] rounded-2xl border border-ink/10"
-                    >
-                      {drawing.shapes.length > 0 && (
-                        <MarkerOverlay
-                          regions={row.regions}
-                          accent={ind?.accent ?? "#F8A1C6"}
-                          overlayKind={ind?.overlayKind ?? "patches_soft"}
-                          drawing={drawing}
-                        />
-                      )}
-                    </ScanPhoto>
-                  ) : (
-                    <FaceMap
-                      compact
-                      overlayKind={ind?.overlayKind ?? "patches_soft"}
-                      accent={ind?.accent ?? "#F8A1C6"}
-                      region={ind?.region ?? "full_face"}
-                      score={row.score}
-                      className="w-[112px] rounded-2xl border border-ink/10"
-                    />
-                  )}
-                  <p className="mt-2 text-[13px] font-semibold lowercase leading-tight">
-                    {ind?.name ?? SCAN_CONCERN_LABEL[row.concern_key]}
-                  </p>
-                  <p className="text-[12px] text-ink/55">{row.score}/100</p>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* recommended for you */}
-      <div className="mt-8 px-6">
-        <p className="brand-eyebrow">matched to your scores</p>
-        <h2 className="brand-display text-[24px] mt-2 lowercase">recommended for you</h2>
-
-        <div className="mt-4 rounded-3xl border border-ink/10 bg-white divide-y divide-ink/10 overflow-hidden">
-          {matches.length === 0 ? (
-            <p className="p-5 text-[14px] text-ink-mute">
-              we're lining up matches for your scores. check back in a moment.
-            </p>
-          ) : (
-            matches.map((m) => (
-              <div key={m.slug} className="flex items-center gap-2 pr-3">
-                <button
-                  type="button"
-                  onClick={() => navigate({ to: "/match/$slug", params: { slug: m.slug } })}
-                  className="min-w-0 flex-1 text-left px-4 py-4 flex items-center gap-3"
-                >
-                  <div className="min-w-0 flex-1">
-                    <p className="font-bold text-[16px] lowercase leading-tight">{m.name}</p>
-                    <p className="text-[12px] text-ink-mute mt-0.5 lowercase">for {m.concernLabel}</p>
-                  </div>
-                  {m.priceFrom !== null && (
-                    <p className="text-[13px] font-semibold shrink-0">from ${Math.round(m.priceFrom)}</p>
-                  )}
-                  <ChevronRight className="size-5 text-ink-mute shrink-0" />
-                </button>
-                <SaveTreatmentButton slug={m.slug} name={m.name} size={18} className="size-9 shrink-0" />
-              </div>
-            ))
-          )}
-        </div>
-      </div>
-
-      <AnalysisFooter className="mt-6 px-6" />
-
-      {/* saved + download links */}
-      <div className="px-6 mt-4 flex items-center justify-center gap-5">
-        <Link
-          to="/profile"
-          className="inline-flex items-center gap-1 text-[13px] text-ink/55 lowercase"
-        >
-          <Check className="size-3.5" aria-hidden="true" />
-          saved to your profile
-        </Link>
         <button
           type="button"
           onClick={() => setShareOpen(true)}
-          className="text-[13px] text-ink/55 lowercase underline underline-offset-4"
+          className="grid size-10 place-items-center rounded-full border border-ink/15"
+          aria-label="download snapshot"
         >
-          download
+          <Download className="size-4" />
         </button>
-      </div>
+      </header>
 
-      {/* sticky consult bar */}
-      <div
-        className="fixed inset-x-0 z-30 px-6 pt-4 pb-3 bg-gradient-to-t from-cream via-cream to-transparent"
-        style={{ bottom: "calc(5rem + env(safe-area-inset-bottom))" }}
-      >
+      <section className="mx-5 mt-5 overflow-hidden rounded-[28px] bg-ink text-white">
+        <div className="grid grid-cols-[42%_1fr] items-stretch">
+          <ScanPhoto source={photoSource} className="relative min-h-[210px]" />
+          <div className="flex flex-col justify-center p-5">
+            <p className="text-[11px] font-bold lowercase tracking-[0.08em] text-white/55">
+              overall skin score
+            </p>
+            <div className="mt-3 flex items-end gap-1.5">
+              <span className="brand-display text-[58px] leading-none">{score}</span>
+              <span className="pb-1 text-[13px] text-white/50">/100</span>
+            </div>
+            <span
+              className="mt-4 w-fit rounded-full px-3 py-1.5 text-[11px] font-bold lowercase text-ink"
+              style={{ backgroundColor: bandTint(scoreBand) }}
+            >
+              {scoreBand}
+            </span>
+          </div>
+        </div>
+      </section>
+
+      {photoQuality === "poor" && (
+        <p className="mx-5 mt-3 rounded-[16px] bg-butter px-4 py-3 text-[11.5px] lowercase text-ink/65">
+          {LOW_QUALITY_NOTE}
+        </p>
+      )}
+
+      <section className="mt-8 px-5">
+        <p className="brand-eyebrow">focus first</p>
+        <h2 className="brand-display mt-2 text-[27px] lowercase">your top 3.</h2>
+        <div className="mt-4 overflow-hidden rounded-[24px] border border-ink/10 bg-white">
+          {priorities.map((row, index) => (
+            <button
+              key={row.concern_key}
+              type="button"
+              onClick={() =>
+                navigate({ to: "/scan/concern/$key", params: { key: row.concern_key } })
+              }
+              className="flex w-full items-center gap-3 border-b border-ink/10 p-4 text-left last:border-0"
+            >
+              <span className="grid size-9 shrink-0 place-items-center rounded-full bg-bubblegum/45 text-[13px] font-bold">
+                {index + 1}
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block text-[15px] font-bold lowercase">
+                  {SCAN_CONCERN_LABEL[row.concern_key]}
+                </span>
+                <span className="mt-0.5 block text-[11.5px] lowercase text-ink-mute">
+                  {priorityCopy(row.score)}
+                </span>
+              </span>
+              <span className="text-[13px] font-bold text-ink-mute">{row.score}</span>
+              <ChevronRight className="size-4 shrink-0 text-ink-mute" />
+            </button>
+          ))}
+        </div>
+      </section>
+
+      {ingredientList.length > 0 && (
+        <section className="mx-5 mt-7 rounded-[24px] bg-mint/55 p-5">
+          <p className="brand-eyebrow">simple next step</p>
+          <h2 className="mt-2 text-[18px] font-bold lowercase">ingredients worth exploring</h2>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {ingredientList.map((ingredient) => (
+              <span
+                key={ingredient}
+                className="rounded-full bg-white px-3 py-2 text-[11.5px] font-semibold lowercase"
+              >
+                {ingredient}
+              </span>
+            ))}
+          </div>
+          <p className="mt-3 text-[10.5px] leading-relaxed text-ink-mute">
+            Start slowly and patch test. A professional can help you choose what fits your skin.
+          </p>
+        </section>
+      )}
+
+      <section className="px-5 pt-7">
         <button
           type="button"
           onClick={() => navigate({ to: "/scan/chat" })}
-          className="w-full h-12 rounded-full text-[15px] font-semibold lowercase text-cream"
-          style={{ backgroundColor: "#FF1F87" }}
+          className="flex h-14 w-full items-center justify-center gap-2 rounded-[20px] bg-hot px-5 text-[15px] font-bold lowercase text-white"
         >
-          start my consult
+          <MessageCircle className="size-4" />
+          ask about my results
+          <ArrowRight className="size-4" />
         </button>
-      </div>
+        <Link
+          to="/scan"
+          className="mt-3 flex h-11 items-center justify-center gap-2 text-[12.5px] font-semibold lowercase text-ink-mute"
+        >
+          <RotateCcw className="size-3.5" />
+          scan again
+        </Link>
+      </section>
 
-      <SharePdfSheet open={shareOpen} onOpenChange={setShareOpen} scanId={scanId} analysis={analysis} />
+      <AnalysisFooter className="px-5 pt-3 text-center" />
+
+      <SharePdfSheet
+        open={shareOpen}
+        onOpenChange={setShareOpen}
+        scanId={scanId}
+        analysis={analysis}
+      />
     </div>
   );
 }
 
-/** the shape of the real screen, so nothing jumps when the scores land */
 function ResultsSkeleton() {
   return (
-    <div className="pb-24" aria-hidden="true">
-      <div className="px-6 flex items-center justify-between gap-3" style={{ paddingTop: "calc(env(safe-area-inset-top) + 0.75rem)" }}>
-        <div className="h-7 w-48 rounded-full bg-ink/10 animate-pulse" />
-        <div className="h-9 w-20 rounded-full bg-ink/10 animate-pulse" />
-      </div>
-      <div className="mt-4 mx-6 rounded-3xl aspect-[4/5] bg-ink/[0.06] animate-pulse" />
-      <div className="mt-4 px-6 grid grid-cols-2 gap-3">
-        {[0, 1, 2, 3].map((i) => (
-          <div key={i} className="h-[92px] rounded-2xl bg-ink/[0.06] animate-pulse" />
-        ))}
-      </div>
-      <div className="mt-8 px-6">
-        <div className="h-6 w-32 rounded-full bg-ink/10 animate-pulse" />
-      </div>
-      <div className="mt-4 flex gap-3 px-6">
-        {[0, 1, 2].map((i) => (
-          <div key={i} className="size-[112px] shrink-0 rounded-2xl bg-ink/[0.06] animate-pulse" />
-        ))}
-      </div>
-      <div className="mt-8 mx-6 h-52 rounded-3xl bg-ink/[0.06] animate-pulse" />
+    <div className="mx-auto w-full max-w-[430px] px-5 pt-6" aria-hidden="true">
+      <div className="h-9 w-48 animate-pulse rounded-full bg-ink/10" />
+      <div className="mt-5 h-[210px] animate-pulse rounded-[28px] bg-ink/[0.07]" />
+      <div className="mt-8 h-7 w-32 animate-pulse rounded-full bg-ink/10" />
+      <div className="mt-4 h-52 animate-pulse rounded-[24px] bg-ink/[0.07]" />
     </div>
   );
 }
